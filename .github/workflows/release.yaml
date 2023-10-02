@@ -1,0 +1,60 @@
+# name: release
+
+# on:
+#   # trigger deployment on every push to master branch
+#   push:
+#     branches: [build]
+  
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps: 
+#       - uses: actions/checkout@v4
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           # choose node.js version to use
+#           node-version: 18
+#           # cache deps for pnpm
+      
+
+#       - uses: actions/setup-go@v4
+#         with:
+#           go-version: '1.20' # The Go version to download (if necessary) and use.
+        
+#       # - name: Setup pnpm
+#       #   uses: pnpm/action-setup@v2
+#       #   with:
+#       #     # choose pnpm version to use
+#       #     version: 6
+#       #     # install deps with pnpm
+#       #     run_install: true
+      
+#       - run: ''
+
+
+#       - run: go version
+
+#       - name: Pull files
+#         run: |
+#           git clone -b vue https://github.com/aaadddfgh/clipboard-go-vue ./vue
+#           git clone -b main https://github.com/aaadddfgh/clipboard-go-vue ./go
+
+#       - name: Build vue
+#         run: |
+#           npm install
+#           npm run build
+      
+
+
+
+#       - name: Upload files to a GitHub release
+#         uses: svenstaro/upload-release-action@2.5.0
+#         with:
+#             repo_token: ${{ secrets.GITHUB_TOKEN }}
+#             file: index.html
+#             tag: latest
+#             asset_name: text.html
+#             overwrite: true
+#             body: "text"
+      

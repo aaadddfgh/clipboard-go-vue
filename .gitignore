@@ -1,0 +1,16 @@
+public/**/*
+.vscode
+.git
+
+bin
+
+*.json
+
+_testmain.go
+
+*.exe
+*.test
+
+.idea
+
+build
