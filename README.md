@@ -44,7 +44,7 @@ after that, html and other files should be in `./dist` directory.
 
 Pull branch `main`, in the directory you pulled `main` branch, run
 ```
-go get
+go install
 go build
 ```
 you should see `clipboard.exe`.   
