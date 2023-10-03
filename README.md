@@ -32,7 +32,7 @@ Else:
 2. go >= 1.20
 
 ### Steps  
-1. build html
+1. build html  
 Pull branch `vue`, in the dir you pulled `vue` branch, run
 ```
 npm install
