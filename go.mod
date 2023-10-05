@@ -1,4 +1,4 @@
-module clipboard
+module clipboard-go-vue
 
 go 1.20
 

@@ -1,12 +1,17 @@
 package main
 
+import (
+	"clipboard-go-vue/src"
+	"clipboard-go-vue/src/lib"
+)
+
 func main() {
 
-	setting := openAndRead()
+	setting := lib.OpenAndReadSetting()
 
 	// NEED_PASSWORD := true
 	// PASSWORD := "your_password"
 	// port := 3000
 
-	runServer(!setting.NoPassword, setting.Password, int(setting.PortNumber))
+	src.RunServer(!setting.NoPassword, setting.Password, int(setting.PortNumber))
 }

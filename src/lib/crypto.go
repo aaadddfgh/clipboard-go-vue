@@ -1,4 +1,4 @@
-package main
+package lib
 
 import (
 	"bytes"
@@ -8,6 +8,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/hex"
+	"encoding/json"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -83,10 +84,9 @@ func (a *AESCrypto) GetKey() map[string][]byte {
 	}
 }
 
-// TODO 实现
 func (a *AESCrypto) Encrypt(data string) string {
 	block, _ := aes.NewCipher(a.key)
-	plaintext := PKCS7Padding([]byte(data), 16)
+	plaintext := pKCS7Padding([]byte(data), 16)
 
 	iv := a.iv
 
@@ -98,7 +98,6 @@ func (a *AESCrypto) Encrypt(data string) string {
 
 }
 
-// TODO 实现
 func (a *AESCrypto) Decrypt(data string) string {
 
 	ciphertext, _ := hex.DecodeString(data)
@@ -131,17 +130,51 @@ func (a *AESCrypto) Decrypt(data string) string {
 	// using crypto/hmac) before being decrypted in order to avoid creating
 	// a padding oracle.
 
-	return string(PKCS7UnPadding(ciphertext))
+	return string(pKCS7UnPadding(ciphertext))
 
 }
+func (a *AESCrypto) DecryptByte(data []byte) string {
 
-func PKCS7Padding(data []byte, blockSize int) []byte {
+	ciphertext := data
+
+	block, err := aes.NewCipher(a.key)
+	if err != nil {
+		panic(err)
+	}
+
+	iv := a.iv
+	padding := 0
+	if len(ciphertext)%aes.BlockSize != 0 {
+
+		padding = aes.BlockSize - (len(data) % aes.BlockSize)
+		padText := bytes.Repeat([]byte{byte(padding)}, padding)
+		ciphertext = append(data, padText...)
+
+	}
+
+	mode := cipher.NewCBCDecrypter(block, iv)
+
+	// CryptBlocks can work in-place if the two arguments are the same.
+	mode.CryptBlocks(ciphertext, ciphertext)
+
+	// If the original plaintext lengths are not a multiple of the block
+	// size, padding would have to be added when encrypting, which would be
+	// removed at this point. For an example, see
+	// https://tools.ietf.org/html/rfc5246#section-6.2.3.2. However, it's
+	// critical to note that ciphertexts must be authenticated (i.e. by
+	// using crypto/hmac) before being decrypted in order to avoid creating
+	// a padding oracle.
+
+	return string(pKCS7UnPadding(ciphertext))
+
+}
+func pKCS7Padding(data []byte, blockSize int) []byte {
 	padding := blockSize - len(data)%blockSize
 	padText := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(data, padText...)
 }
 
-func PKCS7UnPadding(data []byte) []byte {
+func pKCS7UnPadding(data []byte) []byte {
 	length := len(data)
 	unpadding := int(data[length-1])
 	return data[:(length - unpadding)]
@@ -183,7 +216,8 @@ func encryptDataFromConnection(publicKeyPEM string, data string) ([]byte, error)
 	return encryptData(publicKey, data)
 }
 
-func encryptKeyForConnection(publicKeyPEM string, key map[string][]byte) (string, error) {
+// @deprecated
+func EncryptKeyForConnection(publicKeyPEM string, key map[string][]byte) (string, error) {
 	// 调用加密函数
 	encryptedKey, err := encryptDataFromConnection(publicKeyPEM, fmt.Sprintf(`{"key":"%x","iv":"%x"}`, key["key"], key["iv"]))
 	if err != nil {
@@ -192,4 +226,23 @@ func encryptKeyForConnection(publicKeyPEM string, key map[string][]byte) (string
 
 	// 返回十六进制字符串
 	return fmt.Sprintf("%x", encryptedKey), nil
+}
+
+func GetAESFromEncryptedData(data string, rs *RSACrypto) AESCrypto {
+	ciphertext, _ := hex.DecodeString(data)
+	if jsonStr, e := rs.Decrypt(ciphertext); e == nil {
+		var aesMap map[string]string
+		if json.Unmarshal(jsonStr, &aesMap) == nil {
+
+			key, e := hex.DecodeString(aesMap["key"])
+			iv, e1 := hex.DecodeString(aesMap["iv"])
+			if e1 == nil && e == nil {
+				return AESCrypto{
+					key,
+					iv,
+				}
+			}
+		}
+	}
+	panic("bad AES data")
 }

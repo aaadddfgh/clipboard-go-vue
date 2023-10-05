@@ -1,4 +1,4 @@
-package main
+package lib
 
 import (
 	"encoding/json"
@@ -9,12 +9,12 @@ import (
 )
 
 type Setting struct {
-	Password   string `json:"Password" validate:"required_unless=NoPassword true,max=20,min=6"`
+	Password   string `json:"Password" validate:"require_unless=NoPassword true, max=20,min=6"`
 	NoPassword bool   `json:"NoPassword"`
 	PortNumber uint16 `json:"PortNumber"`
 }
 
-func openAndRead() Setting {
+func OpenAndReadSetting() Setting {
 
 	file, err := os.Open("./config.json")
 	if err != nil {
@@ -46,10 +46,11 @@ func openAndRead() Setting {
 	}
 
 	validate := validator.New()
-
+	if setting.NoPassword {
+		return setting
+	}
 	if err := validate.Struct(setting); err != nil {
 		panic(err.Error())
 	}
-
 	return setting
 }
