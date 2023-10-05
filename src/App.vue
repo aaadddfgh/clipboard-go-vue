@@ -26,9 +26,9 @@
         <span>
         @ aaadddfgh
         </span>
-        <a class="ml-2" href="">contrubutors</a>
+        <a class="ml-2" href="https://github.com/aaadddfgh/clipboard-go-vue/">contrubutors</a>
       </div>
-      <a href="">source</a>
+      <a href="https://github.com/aaadddfgh/clipboard-go-vue/">source</a>
     </div>
   </footer>
 </template>

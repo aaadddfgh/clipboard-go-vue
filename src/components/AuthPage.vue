@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { getKey, getAuth } from '@/api';
-import { handshakeAESDecrypt, transpotAES, handshakePasswordEncrypt, RSA } from '@/lib/crypto';
+import {  transpotAES, handshakePasswordEncrypt, RSA } from '@/lib/crypto';
 import { useRSAStore } from '@/stores/key';
-import { onMounted, onBeforeMount, ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
+// const skip=false;
+// if(skip){
 
+// }
 const loading = ref(false)
 const router = useRouter()
 const password = ref("")
-const needPass = ref(true)
+const needPass = ref(false)
 // {
 //     router.push( {name:"clipboard"})
 //     //router.push("clipboard")
@@ -27,28 +30,31 @@ onBeforeMount(async () => {
 })
 
 
-function authProcess(data: { ok: boolean, key: string }) {
+function authProcess(data: { ok: boolean, /*key?: string*/ }) {
     if (data.ok) {
-        const aes = handshakeAESDecrypt(data.key)
-        transpotAES.key = aes.key;
-        transpotAES.iv = aes.iv;
+        // const aes = handshakeAESDecrypt(data.key)
+        // transpotAES.key = aes.key;
+        // transpotAES.iv = aes.iv;
+        // AES密钥由自己生成
         router.push({ 'name': 'clipboard' })
     }
     else {
         alert("出错了")
+        router.push({ 'name': 'auth' })
         location.reload()
     }
 }
 
 function auth(pass?: string) {
     loading.value = true;
-    const MyRsa = RSA;
+    //const MyRsa = RSA;
     try {
         if (pass && needPass.value) {
             getAuth(
                 {
                     pass: handshakePasswordEncrypt(pass, ServerRSAPub.key),
-                    pubKey: MyRsa.getPubKey()
+                    //pubKey: MyRsa.getPubKey(),
+                    aes: transpotAES.getKeyForTransport(ServerRSAPub.key)
                 },
                 authProcess
             )
@@ -56,7 +62,8 @@ function auth(pass?: string) {
         else {
             getAuth(
                 {
-                    pubKey: MyRsa.getPubKey()
+                    //pubKey: MyRsa.getPubKey(),
+                    aes:  transpotAES.getKeyForTransport(ServerRSAPub.key)
                 },
                 authProcess
             )

@@ -18,17 +18,21 @@ class RSACypto{
 
 
 export class AESCypto{
-    key :string;
-    iv :string;
+    key = forge.random.getBytesSync(16);
+    iv = forge.random.getBytesSync(16);
 
 
-    constructor(key:string,iv:string){
-        
-        this.key=key
-        this.iv=iv;
+    constructor(/*key:string,iv:string*/){
+
     }
     
+    getKeyForTransport(pubKey: string) {
+        return EncryptDataWithRSAPubKey(
+            JSON.stringify({ key: forge.util.bytesToHex(this.key), iv: forge.util.bytesToHex(this.iv) }),
+            pubKey
+        );
 
+    }
 
     encypt(data:string){
         let cipher = forge.cipher.createCipher('AES-CBC', this.key);
@@ -40,6 +44,17 @@ export class AESCypto{
         // outputs encrypted hex
         
         return forge.util.bytesToHex(cipher.output.data);
+    }
+    encryptBytes(data:string){
+        let cipher = forge.cipher.createCipher('AES-CBC', this.key);
+        cipher.start({iv: this.iv});
+        cipher.update(forge.util.createBuffer(data));
+                cipher.finish();
+        ;
+        
+        // outputs encrypted hex
+        
+        return cipher.output.data;
     }
     decypt(data:string){
         let decipher = forge.cipher.createDecipher('AES-CBC', this.key);
@@ -64,8 +79,24 @@ export function handshakeAESDecrypt(AES:string,):{key:string,iv:string}{
     };
 }
 
-export function handshakePasswordEncrypt(pass:string,pubKey:string){
-    return forge.util.bytesToHex(forge.pki.publicKeyFromPem(pubKey).encrypt(pass));
+export function EncryptDataWithRSAPubKey(data:string,pubKey:string){
+    return forge.util.bytesToHex(
+        forge.pki.publicKeyFromPem(pubKey)
+            .encrypt(
+                data
+            )
+    )
 }
 
-export const transpotAES=new AESCypto("","");
+export function handshakePasswordEncrypt(pass:string,pubKey:string){
+    // HEX( RSA( AES(pass)))
+    return forge.util.bytesToHex(
+        forge.pki.publicKeyFromPem(pubKey)
+            .encrypt(
+                //注意 password被aes
+                transpotAES.encryptBytes(pass)
+            )
+        );
+}
+
+export const transpotAES=new AESCypto();

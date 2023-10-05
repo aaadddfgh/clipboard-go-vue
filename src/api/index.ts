@@ -1,6 +1,6 @@
-const url=""
+const url= import.meta.env.DEV ? "/api":""
 
-export function getAuth(data: { pass?: string, pubKey: string }, action: (data: { ok: boolean, key: string }) => any) {
+export function getAuth(data: { pass?: string,/* pubKey: string ,*/ aes:string}, action: (data: { ok: boolean, /*key: string*/ }) => any) {
     // WARNING: For POST requests, body is set to null by browsers.
 
     var xhr = new XMLHttpRequest();

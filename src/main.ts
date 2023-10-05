@@ -1,5 +1,6 @@
 import './assets/main.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
+import 'quill/dist/quill.snow.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
