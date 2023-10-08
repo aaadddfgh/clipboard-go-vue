@@ -54,7 +54,7 @@ export function postContent(data: { test: string, content: string }) {
 }
 
 export async function getKey() {
-    return await new Promise<{ key: string,password:boolean }>((res) => {
+    return await new Promise<{ key: string,password:boolean,lang:string }>((res) => {
         var xhr = new XMLHttpRequest();
 
 

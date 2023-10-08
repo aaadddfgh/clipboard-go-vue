@@ -1,0 +1,20 @@
+{
+    "z标题": "clipboard",
+    "z许可": "redistrbution",
+
+    "z源代码": "source",
+    "z无密码警告": "Warn, no password",
+    "z错误提示": "error",
+    "z载入中": "loading",
+    "z输入密码": "Enter password",
+
+    "z输入占位": "Put content into clipboard",
+    "z复制后信息":"Copied",
+    "z复制按钮":"Copy",
+    "z放入剪贴板按钮":"Save",
+    "z放入成功信息":"Success",
+    "z刷新按钮":"Refresh",
+    "z刷新后信息":"Clipboard refreshed",
+
+    "z出错重进提示":"error! refresh now?"
+}

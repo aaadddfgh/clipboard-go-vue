@@ -9,7 +9,12 @@ import Quill  from "quill";
 const router = useRouter()
 //@ts-ignore
 var quillInstance ;
+import { useI18n } from 'vue-i18n'
+import type { MessageSchema } from '@/i18n/type';
 
+const { t } = useI18n<{
+      message: MessageSchema,
+    }>()
 if (useRSAStore().key === "") {
     // router.push({name:"auth"})
 }
@@ -24,22 +29,22 @@ function postBoard(content: string) {
         ).then(({ ok }) => {
             if (ok) {
                 printContent();
-                info("放入成功");
+                info(t("z放入成功信息"));
             }
             else {
-                alert("出错了")
+                alert(t("z错误提示"))
                 router.push({ name: "auth" })
             }
         })
     }
     catch {
-        alert("出错了")
+        alert(t("z错误提示"))
         router.push({ name: "auth" })
     }
 }
 
 //const content = ref("")
-let editDiv: HTMLDivElement | null = null;
+
 
 function printContent(action?: (recivedData?: string) => void) {
 
@@ -56,7 +61,7 @@ function printContent(action?: (recivedData?: string) => void) {
                 }
             }
             catch {
-                if (confirm("似乎出错了，您要重新进入吗？")) {
+                if (confirm(t("z出错重进提示"))) {
                     router.push({ 'name': 'auth' })
                 }
             }
@@ -86,12 +91,12 @@ onMounted(() => {
                 ['clean']                                         // remove formatting button
             ]
         },
-        placeholder: '向剪贴板放入内容',
+        placeholder: t('z输入占位'),
         theme: 'snow',  // or 'bubble'
         scrollingContainer:'#editableDiv'
     });
     //window.qqqq=quillInstance;
-    editDiv = document.querySelector("#editableDiv")
+    
     printContent();
 })
 
@@ -123,8 +128,21 @@ function copyContent() {
     (quillInstance as Quill).setSelection(0,(quillInstance as Quill).getLength())
     document.execCommand("copy")
     //navigator.clipboard.writeText(getClipboard());
-    info("已复制")
+    info(t("z复制后信息"))
 }
+
+
+const ws = new WebSocket("ws://" + location.host + "/ws");
+// 连接成功
+ws.onopen = () => {
+    console.log('WebSocket连接成功')
+}
+// 接收到消息
+ws.onmessage = (e) => {
+    printContent()
+    info(t('z刷新后信息'))
+};
+
 </script>
 
 <template>
@@ -134,16 +152,16 @@ function copyContent() {
                 {{ infoData }}
             </MessageVue>
         </Transition>
-        <span class="h4 mb-3">向剪贴板中放入内容</span>
+        <span class="h4 mb-3">{{t('z输入占位')}}</span>
         <div class="shadow text-area mb-3 p-0 border border-dark rounded" id="editableDiv">
             <div id="editor-container"></div>
         </div>
         <div class="mx-auto d-flex">
-            <button type="button" class="btn btn-success mx-3" v-on:click="copyContent">复制</button>
+            <button type="button" class="btn btn-success mx-3" v-on:click="copyContent">{{t("z复制按钮")}}</button>
             <button type="button" class="btn btn-primary mx-3" v-on:click="//@ts-ignore
-                postBoard(getClipboard())">放入内容</button>
+                postBoard(getClipboard())">{{t("z放入剪贴板按钮")}}</button>
             <button type="button" class="btn btn-primary mx-3"
-                v-on:click="() => { printContent(() => { info('已刷新') }); }">刷新</button>
+                v-on:click="() => { printContent(() => { info(t('z刷新后信息')) }); }">{{t("z刷新按钮")}}</button>
         </div>
 
     </div>

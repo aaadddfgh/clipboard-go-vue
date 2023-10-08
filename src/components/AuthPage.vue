@@ -4,7 +4,12 @@ import {  transpotAES, handshakePasswordEncrypt, RSA } from '@/lib/crypto';
 import { useRSAStore } from '@/stores/key';
 import { onBeforeMount, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n'
+import type { MessageSchema } from '@/i18n/type';
 
+const { t,locale } = useI18n<{
+      message: MessageSchema,
+    }>()
 // const skip=false;
 // if(skip){
 
@@ -20,11 +25,13 @@ const needPass = ref(false)
 const ServerRSAPub = useRSAStore();
 onBeforeMount(async () => {
     const data = (await getKey())
+    //@ts-ignore
+    locale.value=data.lang ? data.lang:"";
     ServerRSAPub.key = data.key;
     needPass.value = data.password;
     if (!data.password) {
 
-        alert("没有密码，数据可能会不安全")
+        alert(t("z无密码警告"))
         auth();
     }
 })
@@ -39,7 +46,7 @@ function authProcess(data: { ok: boolean, /*key?: string*/ }) {
         router.push({ 'name': 'clipboard' })
     }
     else {
-        alert("出错了")
+        alert(t("z错误提示"))
         router.push({ 'name': 'auth' })
         location.reload()
     }
@@ -81,7 +88,7 @@ function auth(pass?: string) {
             <div class="spinner-border m-auto" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
-            <h4 class="mx-auto">载入中</h4>
+            <h4 class="mx-auto">{{t("z载入中")}}</h4>
         </div>
     </div>
 
@@ -89,7 +96,7 @@ function auth(pass?: string) {
 
 
         <div class="card-body">
-            <h4 class="card-title text-center"> 请输入密码</h4>
+            <h4 class="card-title text-center">{{t("z输入密码")}}</h4>
 
             <input type="password" v-model="password" />
             <button v-on:click="auth(password)" type="button" class="mr-3 mt-3 btn btn-primary btn-lg btn-block">接入</button>
@@ -103,7 +110,7 @@ function auth(pass?: string) {
             <div class="spinner-border m-auto" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
-            <h4 class="mx-auto">载入中</h4>
+            <h4 class="mx-auto">{{t("z载入中")}}</h4>
         </div>
     </div>
 </template>
