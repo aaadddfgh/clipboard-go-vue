@@ -2,11 +2,14 @@ package src
 
 import (
 	"encoding/hex"
+
 	"fmt"
 	"net/http"
 
 	"clipboard-go-vue/src/auth"
+	"clipboard-go-vue/src/controllor"
 	"clipboard-go-vue/src/lib"
+	"clipboard-go-vue/src/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -16,19 +19,18 @@ var store = struct {
 	data string
 }{}
 
-func RunServer(NEED_PASSWORD bool, PASSWORD string, port int) {
+func RunServer(NEED_PASSWORD bool, PASSWORD string, port int, lang string) {
 	r := gin.Default()
+
+	r.Use(middleware.CheckSize())
 
 	sessionPool := auth.GetInstance()
 
 	r.Static("/assets", "./public/assets")
 	r.StaticFile("/index", "./public/index.html")
 	r.StaticFile("/clipboard.png", "./public/clipboard.png")
-	r.NoRoute(func(c *gin.Context) {
-		// 实现内部重定向
-		c.Redirect(http.StatusSeeOther, "index")
-	})
 
+	r.GET("/", func(ctx *gin.Context) { ctx.Redirect(http.StatusSeeOther, "/index") })
 	// 初始化你的RSACypto和AESCypto
 	MyCypto, err := lib.NewRSACrypto() // 初始化你的RSA加密对象
 	if err != nil {
@@ -54,6 +56,7 @@ func RunServer(NEED_PASSWORD bool, PASSWORD string, port int) {
 		c.JSON(http.StatusOK, gin.H{
 			"key":      PublicKey,
 			"password": NEED_PASSWORD,
+			"lang":     lang,
 		})
 	})
 
@@ -90,14 +93,14 @@ func RunServer(NEED_PASSWORD bool, PASSWORD string, port int) {
 			password := transportCrypto.DecryptByte(passwordBytes)
 			if string(password) == PASSWORD {
 
-				c.SetCookie("cookie-id", sessionPool.Gen(&transportCrypto), 1000, "/", "", true, true)
+				c.SetCookie("cookie-id", sessionPool.Gen(&transportCrypto), 1000, "/", "", false, true)
 				c.JSON(http.StatusOK, gin.H{"ok": true})
 			} else {
 				c.JSON(http.StatusOK, gin.H{"ok": false})
 			}
 		} else {
-
-			c.SetCookie("cookie-id", sessionPool.Gen(&transportCrypto), 1000, "/", "", true, true)
+			// 只有https可以设置secure=true
+			c.SetCookie("cookie-id", sessionPool.Gen(&transportCrypto), 1000, "/", "", false, true)
 			c.JSON(http.StatusOK, gin.H{"ok": true})
 
 		}
@@ -107,7 +110,7 @@ func RunServer(NEED_PASSWORD bool, PASSWORD string, port int) {
 
 	authorized.Use(auth.NeedCookie())
 	{
-		r.POST("/content", func(c *gin.Context) {
+		authorized.POST("/content", func(c *gin.Context) {
 			var body map[string]string
 			if err := c.ShouldBindJSON(&body); err != nil {
 				c.JSON(http.StatusOK, gin.H{"ok": false})
@@ -130,10 +133,12 @@ func RunServer(NEED_PASSWORD bool, PASSWORD string, port int) {
 			}
 
 			store.data = transpotCypto.Decrypt(content)
+			controllor.BroadcastMsg([]byte(`{"code":100}`))
 			c.JSON(http.StatusOK, gin.H{"ok": true})
+
 		})
 
-		r.GET("/content", func(c *gin.Context) {
+		authorized.GET("/content", func(c *gin.Context) {
 			cookieId, err := c.Cookie("cookie-id")
 			transpotCypto, exists3 := sessionPool.Get(cookieId)
 			if !exists3 || err != nil {
@@ -141,8 +146,11 @@ func RunServer(NEED_PASSWORD bool, PASSWORD string, port int) {
 				return
 			}
 
-			c.JSON(http.StatusOK, gin.H{"data": transpotCypto.Encrypt(store.data)})
+			c.JSON(http.StatusOK, gin.H{"ok": true, "data": transpotCypto.Encrypt(store.data)})
 		})
+
+		authorized.GET("/ws", controllor.CreateWs)
+
 	}
 
 	r.Run(fmt.Sprintf(":%d", port))

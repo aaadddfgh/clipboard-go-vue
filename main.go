@@ -13,5 +13,5 @@ func main() {
 	// PASSWORD := "your_password"
 	// port := 3000
 
-	src.RunServer(!setting.NoPassword, setting.Password, int(setting.PortNumber))
+	src.RunServer(!setting.NoPassword, setting.Password, int(setting.PortNumber), setting.Lang)
 }

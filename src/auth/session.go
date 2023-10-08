@@ -53,8 +53,12 @@ func (s *Sessions) Exsist(key string) bool {
 }
 
 func (s *Sessions) Get(key string) (aes lib.AESCrypto, exists bool) {
-	vv, err := s.seMap[key]
-	return vv.AESCrypto, err
+	vv, exists := s.seMap[key]
+	//更新最后使用时间
+	if exists {
+		vv.lastUse = time.Now()
+	}
+	return vv.AESCrypto, exists
 
 }
 

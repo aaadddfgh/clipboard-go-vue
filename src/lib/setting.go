@@ -9,9 +9,10 @@ import (
 )
 
 type Setting struct {
-	Password   string `json:"Password" validate:"require_unless=NoPassword true, max=20,min=6"`
+	Password   string `json:"Password" validate:"max=20,min=6"`
 	NoPassword bool   `json:"NoPassword"`
 	PortNumber uint16 `json:"PortNumber"`
+	Lang       string `json:"Lang"`
 }
 
 func OpenAndReadSetting() Setting {
@@ -25,6 +26,7 @@ func OpenAndReadSetting() Setting {
 			Password:   "",
 			NoPassword: true,
 			PortNumber: 3000,
+			Lang:       "en",
 		}
 	}
 	defer file.Close()
@@ -42,6 +44,7 @@ func OpenAndReadSetting() Setting {
 			Password:   "",
 			NoPassword: true,
 			PortNumber: 3000,
+			Lang:       "en",
 		}
 	}
 
