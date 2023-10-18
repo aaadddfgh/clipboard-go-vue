@@ -24,6 +24,7 @@ const needPass = ref(false)
 // }
 const ServerRSAPub = useRSAStore();
 onBeforeMount(async () => {
+    //TODO 需要根据信息配置i18n
     const data = (await getKey())
     //@ts-ignore
     locale.value=data.lang ? data.lang:"";

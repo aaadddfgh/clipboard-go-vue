@@ -71,3 +71,36 @@ export async function getKey() {
     })
 
 }
+
+export function postFile(data: FormData) {
+    // WARNING: For POST requests, body is set to null by browsers.
+    return new Promise<{ok:boolean}>((res, rej) => {
+
+        var xhr = new XMLHttpRequest();
+
+
+        xhr.addEventListener("readystatechange", function () {
+            if (this.readyState === 4) {
+                
+                    res(JSON.parse(this.responseText));
+                
+            }
+        });
+
+        xhr.open("POST", url+"/file");
+
+        xhr.send(data);
+    })
+}
+
+export function getFile() {
+    window.open(url+"/file")
+}
+
+export function delFile() {
+    var xhr = new XMLHttpRequest();
+
+    xhr.open("GET", url+"/delfile");
+
+    xhr.send();
+}

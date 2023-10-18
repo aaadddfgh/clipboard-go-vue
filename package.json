@@ -4,7 +4,8 @@
   "private": true,
   "author": "aaadddfgh",
   "scripts": {
-    "dev": "vite --host ::",
+    "dev": "vite",
+    "dev-public":"vite --host ::",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
