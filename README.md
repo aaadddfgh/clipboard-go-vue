@@ -4,7 +4,8 @@ A web clipboard
 
 ## Features
 ### secure communication
-This clipboard protect your communication even you don't use HTTPS/SSL to protect you infomation.  
+This clipboard protect your communication even you don't use HTTPS/SSL to protect your infomation.
+(can't prevent Man-in-the-MiddleAttack)  
 And protect your clipboard with password (alternative).  
 
 ### config.json
@@ -21,6 +22,7 @@ type Setting struct {
 	Password   string `json:"Password" validate:"required_unless=NoPassword true,max=20,min=6"`
 	NoPassword bool   `json:"NoPassword"`
 	PortNumber uint16 `json:"PortNumber"`
+	Lang       string `json:"Lang"`
 }
 ```
 

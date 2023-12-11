@@ -98,9 +98,9 @@ func (a *AESCrypto) Encrypt(data string) string {
 
 }
 
-func (a *AESCrypto) Decrypt(data string) string {
+func (a *AESCrypto) Decrypt(hexDataString string) string {
 
-	ciphertext, _ := hex.DecodeString(data)
+	ciphertext, _ := hex.DecodeString(hexDataString)
 
 	block, err := aes.NewCipher(a.key)
 	if err != nil {

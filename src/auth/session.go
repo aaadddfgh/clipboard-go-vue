@@ -8,22 +8,23 @@ import (
 
 var Instance *Sessions
 
-type ValInSession struct {
+type ValueInSession struct {
 	lib.AESCrypto
 	lastUse time.Time
 }
 
+// Store every connection's AES key for secure
 type Sessions struct {
-	seMap map[string]*ValInSession
+	seMap map[string]*ValueInSession
 }
 
 func (s *Sessions) init() {
-	s.seMap = make(map[string]*ValInSession)
+	s.seMap = make(map[string]*ValueInSession)
 
 }
 
 func (s *Sessions) put(id string, v *lib.AESCrypto) {
-	temp := ValInSession{
+	temp := ValueInSession{
 		*v,
 		time.Now(),
 	}
