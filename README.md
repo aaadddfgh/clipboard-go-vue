@@ -19,7 +19,7 @@ In config.json
 
 ``` go
 type Setting struct {
-	Password   string `json:"Password" validate:"required_unless=NoPassword true,max=20,min=6"`
+	Password   string `json:"Password" validate:"required_unless=NoPassword false,max=20,min=6"`
 	NoPassword bool   `json:"NoPassword"`
 	PortNumber uint16 `json:"PortNumber"`
 	Lang       string `json:"Lang"`
